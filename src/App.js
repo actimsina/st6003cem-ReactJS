@@ -1,31 +1,58 @@
 import { useState } from "react";
-import Feedback from "./components/Feedback";
+function App(props) {
+  const [notes, setNotes] = useState(props.notes)
+  const [newNote, setNewNote] = useState('')
+  const [showAll, setShowAll] = useState(true)
 
-function App() {
+  const notesToShow = showAll
+    ? notes
+    : notes.filter(n => n.important === true)
 
-  const [counter, setCounter] = useState(0)
+  const handleChange = (event) => {
+    console.log(event.target.value)
+    setNewNote(event.target.value)
+  }
 
-  // setTimeout(
-  //   () => setCounter(counter + 1),
-  //   1000)
+  const handleAdd = (event) => {
+    event.preventDefault()
+    // Create a note
+    const note = {
+      id: notes.length + 1,
+      content: newNote,
+      date: new Date().toString(),
+      important: Math.random() < 0.5
+    }
 
-  const handleClick = () => setCounter(counter + 1)
+    if (newNote !== '') setNotes(notes.concat(note))
+    setNewNote('')
+  }
 
-  const handleReset = () => setCounter(0)
+  const handleDelete = (id) => {
+    window.confirm(`Do you really want to delete note with id ${id}`)
 
-  console.log(`rendering ${counter} `)
+  }
 
   return (
     <>
-      <h2> {counter}</h2>
-      <button onClick={handleClick}>
-        Plus
+      <h2>Notes</h2>
+      <button onClick={() => setShowAll(!showAll)}>
+        {showAll ? 'show important' : 'show all'}
       </button>
-      <button onClick={handleReset}>
-        Reset
-      </button>
+      <ul>
+        {notesToShow.map(note =>
+          <li key={note.id}> <p>{note.content}</p>
+            <p>{note.date}</p>
+            <button onClick={() => handleDelete(note.id)}>
+              delete
+            </button>
+          </li>
+        )}
+      </ul>
 
-      <Feedback />
+      <form>
+        <input value={newNote} onChange={handleChange} />
+        <button onClick={handleAdd}>add</button>
+      </form>
     </>
   );
 }
